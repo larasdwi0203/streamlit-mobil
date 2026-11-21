@@ -5,23 +5,28 @@ model = pickle.load(open('estimasi_mobil.sav', 'rb'))
 
 st.title('Estimasi Harga Mobil Bekas')
 
-year = st.number_input('Input Tahun Mobil', step=1, format='%d')
-mileage = st.number_input('Input Km Mobil', step=100, format='%d')
-tax = st.number_input('Input Pajak Mobil', step=5, format='%d')
-mpg = st.number_input('Input Konsumsi BBM Mobil')
-engineSize = st.number_input('Input Engine Size')
+year = st.number_input('Input Tahun Mobil', value=2019.0)
+mileage = st.number_input('Input Km Mobil', value=5000.0)
+tax = st.number_input('Input Pajak Mobil', value=145.0)
+mpg = st.number_input('Input Konsumsi BBM Mobil', value=30.20)
+engineSize = st.number_input('Input Engine Size', value=2.0)
 
-predict = ''
+def format_koma(angka):
+    return f"{float(angka):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def format_rupiah(angka):
+    return f"Rp {format_koma(angka)}"
+
+nilai_ponds = 0.0
+nilai_idr = 0.0
 
 if st.button('Estimasi Harga'):
-    predict = model.predict(
-        [[year, mileage, tax, mpg, engineSize]]
-    )
-    price_pounds = float(predict[0])
-    price_idr = price_pounds * 19000
+    predict = model.predict([[year, mileage, tax, mpg, engineSize]])
+    nilai_ponds = float(predict[0])
+    nilai_idr = nilai_ponds * 19000
 
-    formatted_pounds = f"{price_pounds:,.0f}".replace(",", ".")
-    formatted_idr = f"{price_idr:,.0f}".replace(",", ".")
+st.write('Estimasi harga mobil bekas dalam Ponds :')
+st.metric(label="value", value=format_koma(nilai_ponds))
 
-    st.success(f"Estimasi harga mobil bekas dalam Ponds : £ {formatted_pounds}")
-    st.success(f"Estimasi harga mobil bekas dalam IDR : Rp {formatted_idr}")
+st.write('Estimasi harga mobil bekas dalam IDR (Juta) :')
+st.metric(label="value", value=format_rupiah(nilai_idr))
